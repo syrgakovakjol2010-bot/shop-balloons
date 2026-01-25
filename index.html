@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Nitrous Shop KG</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body {
+            background-color: #121212;
+            color: #ffffff;
+            font-family: -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;
+            margin: 0; padding: 16px;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        /* КАРТОЧКА ТОВАРА */
+        .product-card {
+            background: #1e1e1e; border-radius: 12px; padding: 16px;
+            margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+        .product-header { display: flex; justify-content: space-between; margin-bottom: 8px; }
+        .product-title { font-size: 18px; font-weight: 700; color: #fff; }
+        
+        /* ОПЦИИ И ЦЕНЫ */
+        .price-option {
+            display: flex; justify-content: space-between; align-items: center;
+            background: #2c2c2c; padding: 10px; border-radius: 8px;
+            margin-bottom: 8px; cursor: pointer; border: 1px solid transparent;
+        }
+        .price-option.selected { border-color: #3498db; background: #253341; }
+        .price-text { font-weight: 600; color: #4caf50; }
+
+        /* КНОПКИ +/- */
+        .counter-controls {
+            display: flex; align-items: center; justify-content: space-between;
+            background: #3498db; border-radius: 8px; padding: 5px;
+        }
+        .ctrl-btn { background: transparent; border: none; color: white; font-size: 20px; width: 40px; }
+        .hidden { display: none; }
+
+        /* ПОЛЯ ВВОДА */
+        #order-screen { display: none; }
+        input, select {
+            width: 100%; background: #2c2c2c; border: 1px solid #444;
+            color: white; padding: 12px; border-radius: 8px;
+            margin-bottom: 12px; font-size: 16px; outline: none; box-sizing: border-box;
+        }
+        input:focus, select:focus { border-color: #3498db; }
+        
+        /* ГРУППА ПЕРЕКЛЮЧАТЕЛЕЙ (Радио-кнопки) */
+        .radio-group { display: flex; gap: 10px; margin-bottom: 12px; }
+        .radio-label {
+            flex: 1; text-align: center; background: #2c2c2c;
+            padding: 10px; border-radius: 8px; border: 1px solid #444; cursor: pointer;
+        }
+        input[type="radio"] { display: none; }
+        input[type="radio"]:checked + .radio-label {
+            background: #3498db; border-color: #3498db; color: white;
+        }
+
+        /* ГЛАВНАЯ КНОПКА */
+        .main-btn {
+            width: calc(100% - 32px); padding: 16px;
+            background: #2ea043; color: white; border: none; border-radius: 12px;
+            font-size: 18px; font-weight: bold; position: fixed; bottom: 16px; left: 16px;
+            box-shadow: 0 4px 12px rgba(46, 160, 67, 0.4); z-index: 100;
+        }
+        .back-link { color: #3498db; text-decoration: none; font-size: 16px; display: inline-block; margin-bottom: 20px; }
+        label { color: #888; font-size: 14px; margin-bottom: 4px; display: block; }
+    </style>
+</head>
+<body>
+
+<div id="catalog-screen">
+    <h2 style="text-align: center;">🎈 Выберите баллоны</h2>
+    <div id="products-container"></div>
+    <div style="height: 80px;"></div>
+</div>
+
+<div id="order-screen">
+    <a href="#" class="back-link" onclick="showCatalog()">⬅️ Назад к товарам</a>
+    
+    <label>Город:</label>
+    <select id="city">
+        <option value="Бишкек">Бишкек</option>
+        <option value="Ош">Ош</option>
+        <option value="Манас">Манас</option>
+    </select>
+
+    <label>Адрес (Улица, дом):</label>
+    <input type="text" id="address" placeholder="Например: ул. Токтогула, 125">
+
+    <label>Квартира / Этаж:</label>
+    <input type="text" id="kv" placeholder="Кв 15, этаж 3">
+
+    <label>Телефон:</label>
+    <input type="tel" id="phone" placeholder="0555 123 456">
+
+    <label>Как срочно?</label>
+    <div class="radio-group">
+        <label style="flex:1">
+            <input type="radio" name="urgency" value="Срочно!" checked>
+            <div class="radio-label">🔥 Срочно</div>
+        </label>
+        <label style="flex:1">
+            <input type="radio" name="urgency" value="Подожду">
+            <div class="radio-label">🐢 Подожду</div>
+        </label>
+    </div>
+
+    <label>Оплата:</label>
+    <div class="radio-group">
+        <label style="flex:1">
+            <input type="radio" name="payment" value="Наличные" checked>
+            <div class="radio-label">💵 Нал</div>
+        </label>
+        <label style="flex:1">
+            <input type="radio" name="payment" value="Перевод">
+            <div class="radio-label">💳 Перевод</div>
+        </label>
+    </div>
+
+    <div style="height: 80px;"></div>
+</div>
+
+<button id="main-button" class="main-btn hidden" onclick="handleMainButton()">Оформить заказ</button>
+
+<script>
+    const tg = window.Telegram.WebApp;
+    tg.expand();
+
+    // КАТАЛОГ (ID, Название, Описание, Цена Полная, Цена Обмен)
+    const products = [
+        { id: 1, name: "10 л", info: "200-220 шаров", priceFull: 18500, priceSwap: 15500 },
+        { id: 2, name: "5 л", info: "120-130 шаров", priceFull: 15000, priceSwap: 12000 },
+        { id: 3, name: "4 л", info: "90-100 шаров", priceFull: 13000, priceSwap: 10000 },
+        { id: 4, name: "3.5 л", info: "20-25 шаров", priceFull: 7300, priceSwap: 4300 },
+        { id: 5, name: "2 л", info: "40-45 шаров", priceFull: 9000, priceSwap: 6000 },
+        { id: 6, name: "1 л", info: "20-25 шаров", priceFull: 7500, priceSwap: 4500 }
+    ];
+
+    let cart = {};
+    let currentScreen = 'catalog';
+    const container = document.getElementById('products-container');
+
+    // Генерация HTML товаров
+    products.forEach(p => {
+        const el = document.createElement('div');
+        el.className = 'product-card';
+        el.innerHTML = `
+            <div class="product-header">
+                <span class="product-title">${p.name}</span>
+                <span style="color: #888; font-size: 14px;">${p.info}</span>
+            </div>
+            ${renderOption(p.id, 'full', 'С баллоном', p.priceFull)}
+            ${renderOption(p.id, 'swap', 'Замена баллона', p.priceSwap)}
+        `;
+        container.appendChild(el);
+    });
+
+    function renderOption(id, type, label, price) {
+        return `
+        <div class="price-option" id="opt-${id}-${type}" onclick="addToCart(${id}, '${type}', ${price})">
+            <div>
+                <span style="display:block; font-size:14px;">${label}</span>
+                <span class="price-text">${price} с</span>
+            </div>
+            <div id="ctrl-${id}-${type}" class="counter-controls hidden">
+                <button class="ctrl-btn" onclick="event.stopPropagation(); minus(${id}, '${type}')">-</button>
+                <span style="margin:0 10px; font-weight:bold" id="val-${id}-${type}">0</span>
+                <button class="ctrl-btn" onclick="event.stopPropagation(); plus(${id}, '${type}')">+</button>
+            </div>
+        </div>`;
+    }
+
+    function addToCart(id, type, price) {
+        const key = `${id}-${type}`;
+        if (!cart[key]) cart[key] = { count: 0, price: price, id: id, type: type };
+        plus(id, type);
+    }
+
+    function plus(id, type) {
+        const key = `${id}-${type}`;
+        if (cart[key]) cart[key].count++;
+        updateUI();
+    }
+
+    function minus(id, type) {
+        const key = `${id}-${type}`;
+        if (cart[key]) {
+            cart[key].count--;
+            if (cart[key].count <= 0) delete cart[key];
+        }
+        updateUI();
+    }
+
+    function updateUI() {
+        let totalSum = 0;
+        let totalCount = 0;
+
+        document.querySelectorAll('.counter-controls').forEach(el => el.classList.add('hidden'));
+
+        for (let key in cart) {
+            const item = cart[key];
+            totalSum += item.price * item.count;
+            totalCount += item.count;
+            
+            const ctrl = document.getElementById(`ctrl-${key}`);
+            const val = document.getElementById(`val-${key}`);
+            if (ctrl) {
+                ctrl.classList.remove('hidden');
+                val.innerText = item.count;
+            }
+        }
+
+        const btn = document.getElementById('main-button');
+        if (totalCount > 0) {
+            btn.classList.remove('hidden');
+            btn.innerText = currentScreen === 'catalog' 
+                ? `Оформить заказ (${totalSum} с)` 
+                : `Подтвердить заказ (${totalSum} с)`;
+        } else {
+            btn.classList.add('hidden');
+        }
+    }
+
+    function handleMainButton() {
+        if (currentScreen === 'catalog') showOrderForm();
+        else sendDataToBot();
+    }
+
+    function showOrderForm() {
+        document.getElementById('catalog-screen').style.display = 'none';
+        document.getElementById('order-screen').style.display = 'block';
+        currentScreen = 'order';
+        updateUI();
+    }
+
+    function showCatalog() {
+        document.getElementById('catalog-screen').style.display = 'block';
+        document.getElementById('order-screen').style.display = 'none';
+        currentScreen = 'catalog';
+        updateUI();
+    }
+
+    function sendDataToBot() {
+        const address = document.getElementById('address').value;
+        const phone = document.getElementById('phone').value;
+        const kv = document.getElementById('kv').value;
+        
+        if (!address || !phone) {
+            tg.showAlert("⚠️ Введите адрес и телефон!");
+            return;
+        }
+
+        // Сбор товаров
+        let items = [];
+        let total = 0;
+        for (let key in cart) {
+            const i = cart[key];
+            const p = products.find(x => x.id == i.id);
+            const tName = i.type === 'full' ? 'С баллоном' : 'Обмен';
+            items.push({ name: `${p.name} (${tName})`, count: i.count });
+            total += i.price * i.count;
+        }
+
+        // Сбор новых данных
+        const data = {
+            city: document.getElementById('city').value,
+            address: address,
+            kv: kv,
+            phone: phone,
+            urgency: document.querySelector('input[name="urgency"]:checked').value,
+            payment: document.querySelector('input[name="payment"]:checked').value,
+            items: items,
+            total: total
+        };
+
+        tg.sendData(JSON.stringify(data));
+    }
+</script>
+</body>
+</html>
