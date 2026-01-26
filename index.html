@@ -6,82 +6,134 @@
     <title>Nitrous Shop KG</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
+        :root {
+            --neon-blue: #00e5ff;
+            --dark-bg: #050505;
+            --card-bg: #111111;
+            --text-color: #ffffff;
+            --gray-text: #8899a6;
+        }
+
         body {
-            background-color: #121212;
-            color: #ffffff;
-            font-family: -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--dark-bg);
+            color: var(--text-color);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             margin: 0; padding: 16px;
             -webkit-tap-highlight-color: transparent;
+            background-image: radial-gradient(circle at top, #0a1f30 0%, #050505 60%);
         }
         
         /* КАРТОЧКА ТОВАРА */
         .product-card {
-            background: #1e1e1e; border-radius: 12px; padding: 16px;
-            margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            background: var(--card-bg);
+            border: 1px solid #333;
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 20px rgba(0, 229, 255, 0.05);
+            transition: 0.2s;
         }
-        .product-header { display: flex; justify-content: space-between; margin-bottom: 8px; }
-        .product-title { font-size: 18px; font-weight: 700; color: #fff; }
+        
+        .product-header { display: flex; justify-content: space-between; margin-bottom: 12px; }
+        .product-title { font-size: 19px; font-weight: 800; color: #fff; letter-spacing: 0.5px; }
+        .product-info { color: var(--neon-blue); font-size: 14px; text-shadow: 0 0 5px rgba(0, 229, 255, 0.4); }
         
         /* ОПЦИИ И ЦЕНЫ */
         .price-option {
             display: flex; justify-content: space-between; align-items: center;
-            background: #2c2c2c; padding: 10px; border-radius: 8px;
-            margin-bottom: 8px; cursor: pointer; border: 1px solid transparent;
+            background: #1a1a1a; padding: 12px; border-radius: 12px;
+            margin-bottom: 8px; cursor: pointer;
+            border: 1px solid #333;
+            transition: all 0.3s ease;
         }
-        .price-option.selected { border-color: #3498db; background: #253341; }
-        .price-text { font-weight: 600; color: #4caf50; }
+        
+        .price-option.selected {
+            border-color: var(--neon-blue);
+            background: rgba(0, 229, 255, 0.05);
+            box-shadow: 0 0 10px rgba(0, 229, 255, 0.1);
+        }
+        
+        .price-text { font-weight: 700; color: #fff; }
+        .option-label { font-size: 13px; color: var(--gray-text); }
 
         /* КНОПКИ +/- */
         .counter-controls {
             display: flex; align-items: center; justify-content: space-between;
-            background: #3498db; border-radius: 8px; padding: 5px;
+            background: transparent; border: 1px solid var(--neon-blue);
+            border-radius: 8px; padding: 4px 8px; min-width: 80px;
         }
-        .ctrl-btn { background: transparent; border: none; color: white; font-size: 20px; width: 40px; }
+        .ctrl-btn { 
+            background: transparent; border: none; 
+            color: var(--neon-blue); font-size: 20px; font-weight: bold;
+            width: 30px; cursor: pointer;
+        }
+        .count-val { font-weight: bold; color: #fff; }
         .hidden { display: none; }
 
         /* ПОЛЯ ВВОДА */
         #order-screen { display: none; }
         input, select {
-            width: 100%; background: #2c2c2c; border: 1px solid #444;
-            color: white; padding: 12px; border-radius: 8px;
-            margin-bottom: 12px; font-size: 16px; outline: none; box-sizing: border-box;
+            width: 100%; background: #1a1a1a; 
+            border: 1px solid #333; color: white; 
+            padding: 14px; border-radius: 12px;
+            margin-bottom: 15px; font-size: 16px; outline: none; box-sizing: border-box;
+            transition: 0.3s;
         }
-        input:focus, select:focus { border-color: #3498db; }
+        input:focus, select:focus { 
+            border-color: var(--neon-blue); 
+            box-shadow: 0 0 10px rgba(0, 229, 255, 0.2);
+        }
         
-        /* ГРУППА ПЕРЕКЛЮЧАТЕЛЕЙ (Радио-кнопки) */
-        .radio-group { display: flex; gap: 10px; margin-bottom: 12px; }
+        /* РАДИО КНОПКИ */
+        .radio-group { display: flex; gap: 10px; margin-bottom: 15px; }
         .radio-label {
-            flex: 1; text-align: center; background: #2c2c2c;
-            padding: 10px; border-radius: 8px; border: 1px solid #444; cursor: pointer;
+            flex: 1; text-align: center; background: #1a1a1a;
+            padding: 12px; border-radius: 12px; border: 1px solid #333; 
+            cursor: pointer; transition: 0.3s; color: var(--gray-text);
         }
         input[type="radio"] { display: none; }
+        
         input[type="radio"]:checked + .radio-label {
-            background: #3498db; border-color: #3498db; color: white;
+            background: var(--neon-blue); 
+            border-color: var(--neon-blue); 
+            color: #000; font-weight: 800;
+            box-shadow: 0 0 15px rgba(0, 229, 255, 0.4);
         }
 
         /* ГЛАВНАЯ КНОПКА */
         .main-btn {
-            width: calc(100% - 32px); padding: 16px;
-            background: #2ea043; color: white; border: none; border-radius: 12px;
-            font-size: 18px; font-weight: bold; position: fixed; bottom: 16px; left: 16px;
-            box-shadow: 0 4px 12px rgba(46, 160, 67, 0.4); z-index: 100;
+            width: calc(100% - 32px); padding: 18px;
+            background: var(--neon-blue); 
+            color: #000; 
+            border: none; border-radius: 14px;
+            font-size: 18px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px;
+            position: fixed; bottom: 20px; left: 16px;
+            box-shadow: 0 0 20px rgba(0, 229, 255, 0.4);
+            z-index: 100;
+            transition: transform 0.1s;
         }
-        .back-link { color: #3498db; text-decoration: none; font-size: 16px; display: inline-block; margin-bottom: 20px; }
-        label { color: #888; font-size: 14px; margin-bottom: 4px; display: block; }
+        .main-btn:active { transform: scale(0.98); }
+        
+        .back-link { 
+            color: var(--neon-blue); text-decoration: none; font-size: 16px; 
+            display: inline-flex; align-items: center; margin-bottom: 20px; font-weight: bold;
+        }
+        label { color: var(--gray-text); font-size: 13px; margin-bottom: 6px; display: block; margin-left: 4px;}
+        h2 { color: #fff; text-shadow: 0 0 10px rgba(0,0,0,0.5); }
     </style>
 </head>
 <body>
 
 <div id="catalog-screen">
-    <h2 style="text-align: center;">🎈 Выберите баллоны</h2>
+    <h2 style="text-align: center; margin-bottom: 25px;">⚡️ NITROUS SHOP ⚡️</h2>
     <div id="products-container"></div>
-    <div style="height: 80px;"></div>
+    <div style="height: 100px;"></div>
 </div>
 
 <div id="order-screen">
-    <a href="#" class="back-link" onclick="showCatalog()">⬅️ Назад к товарам</a>
+    <a href="#" class="back-link" onclick="showCatalog()">⬅️ Назад в каталог</a>
     
-    <label>Город:</label>
+    <label>Город доставки:</label>
     <select id="city">
         <option value="Бишкек">Бишкек</option>
         <option value="Ош">Ош</option>
@@ -91,17 +143,17 @@
     <label>Адрес (Улица, дом):</label>
     <input type="text" id="address" placeholder="Например: ул. Токтогула, 125">
 
-    <label>Квартира / Этаж:</label>
+    <label>Квартира / Этаж / Домофон:</label>
     <input type="text" id="kv" placeholder="Кв 15, этаж 3">
 
-    <label>Телефон:</label>
+    <label>Контактный телефон:</label>
     <input type="tel" id="phone" placeholder="0555 123 456">
 
-    <label>Как срочно?</label>
+    <label>Срочность:</label>
     <div class="radio-group">
         <label style="flex:1">
             <input type="radio" name="urgency" value="Срочно!" checked>
-            <div class="radio-label">🔥 Срочно</div>
+            <div class="radio-label">🔥 СРОЧНО</div>
         </label>
         <label style="flex:1">
             <input type="radio" name="urgency" value="Подожду">
@@ -109,11 +161,11 @@
         </label>
     </div>
 
-    <label>Оплата:</label>
+    <label>Способ оплаты:</label>
     <div class="radio-group">
         <label style="flex:1">
             <input type="radio" name="payment" value="Наличные" checked>
-            <div class="radio-label">💵 Нал</div>
+            <div class="radio-label">💵 Наличные</div>
         </label>
         <label style="flex:1">
             <input type="radio" name="payment" value="Перевод">
@@ -121,7 +173,7 @@
         </label>
     </div>
 
-    <div style="height: 80px;"></div>
+    <div style="height: 100px;"></div>
 </div>
 
 <button id="main-button" class="main-btn hidden" onclick="handleMainButton()">Оформить заказ</button>
@@ -129,8 +181,9 @@
 <script>
     const tg = window.Telegram.WebApp;
     tg.expand();
+    tg.setHeaderColor('#050505'); 
+    tg.setBackgroundColor('#050505');
 
-    // КАТАЛОГ (ID, Название, Описание, Цена Полная, Цена Обмен)
     const products = [
         { id: 1, name: "10 л", info: "200-220 шаров", priceFull: 18500, priceSwap: 15500 },
         { id: 2, name: "5 л", info: "120-130 шаров", priceFull: 15000, priceSwap: 12000 },
@@ -144,17 +197,16 @@
     let currentScreen = 'catalog';
     const container = document.getElementById('products-container');
 
-    // Генерация HTML товаров
     products.forEach(p => {
         const el = document.createElement('div');
         el.className = 'product-card';
         el.innerHTML = `
             <div class="product-header">
                 <span class="product-title">${p.name}</span>
-                <span style="color: #888; font-size: 14px;">${p.info}</span>
+                <span class="product-info">${p.info}</span>
             </div>
             ${renderOption(p.id, 'full', 'С баллоном', p.priceFull)}
-            ${renderOption(p.id, 'swap', 'Замена баллона', p.priceSwap)}
+            ${renderOption(p.id, 'swap', 'С заменой баллона', p.priceSwap)}
         `;
         container.appendChild(el);
     });
@@ -163,12 +215,12 @@
         return `
         <div class="price-option" id="opt-${id}-${type}" onclick="addToCart(${id}, '${type}', ${price})">
             <div>
-                <span style="display:block; font-size:14px;">${label}</span>
+                <span class="option-label" style="display:block;">${label}</span>
                 <span class="price-text">${price} с</span>
             </div>
             <div id="ctrl-${id}-${type}" class="counter-controls hidden">
                 <button class="ctrl-btn" onclick="event.stopPropagation(); minus(${id}, '${type}')">-</button>
-                <span style="margin:0 10px; font-weight:bold" id="val-${id}-${type}">0</span>
+                <span style="margin:0 10px;" class="count-val" id="val-${id}-${type}">0</span>
                 <button class="ctrl-btn" onclick="event.stopPropagation(); plus(${id}, '${type}')">+</button>
             </div>
         </div>`;
@@ -199,6 +251,7 @@
         let totalSum = 0;
         let totalCount = 0;
 
+        document.querySelectorAll('.price-option').forEach(el => el.classList.remove('selected'));
         document.querySelectorAll('.counter-controls').forEach(el => el.classList.add('hidden'));
 
         for (let key in cart) {
@@ -206,6 +259,9 @@
             totalSum += item.price * item.count;
             totalCount += item.count;
             
+            const optDiv = document.getElementById(`opt-${item.id}-${item.type}`);
+            if (optDiv) optDiv.classList.add('selected');
+
             const ctrl = document.getElementById(`ctrl-${key}`);
             const val = document.getElementById(`val-${key}`);
             if (ctrl) {
@@ -218,8 +274,8 @@
         if (totalCount > 0) {
             btn.classList.remove('hidden');
             btn.innerText = currentScreen === 'catalog' 
-                ? `Оформить заказ (${totalSum} с)` 
-                : `Подтвердить заказ (${totalSum} с)`;
+                ? `ОФОРМИТЬ: ${totalSum} с` 
+                : `ПОДТВЕРДИТЬ: ${totalSum} с`;
         } else {
             btn.classList.add('hidden');
         }
@@ -234,6 +290,7 @@
         document.getElementById('catalog-screen').style.display = 'none';
         document.getElementById('order-screen').style.display = 'block';
         currentScreen = 'order';
+        window.scrollTo(0,0);
         updateUI();
     }
 
@@ -250,22 +307,20 @@
         const kv = document.getElementById('kv').value;
         
         if (!address || !phone) {
-            tg.showAlert("⚠️ Введите адрес и телефон!");
+            tg.showAlert("⚠️ Пожалуйста, введите адрес и телефон!");
             return;
         }
 
-        // Сбор товаров
         let items = [];
         let total = 0;
         for (let key in cart) {
             const i = cart[key];
             const p = products.find(x => x.id == i.id);
-            const tName = i.type === 'full' ? 'С баллоном' : 'Обмен';
+            const tName = i.type === 'full' ? 'С баллоном' : 'С заменой баллона';
             items.push({ name: `${p.name} (${tName})`, count: i.count });
             total += i.price * i.count;
         }
 
-        // Сбор новых данных
         const data = {
             city: document.getElementById('city').value,
             address: address,
