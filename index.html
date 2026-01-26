@@ -3,129 +3,143 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Nitrous Shop KG</title>
+    <title>Element_gas_kg</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
-            --neon-blue: #00e5ff;
-            --dark-bg: #050505;
-            --card-bg: #111111;
-            --text-color: #ffffff;
-            --gray-text: #8899a6;
+            /* === НАСТРОЙКИ ЦВЕТА (СИНИЙ НЕОН) === */
+            --neon-color: #00e5ff;  /* Ярко-голубой неон */
+            --bg-color: #050505;    /* Черный фон */
+            --card-bg: #101010;     /* Фон карточек */
+            --text-main: #ffffff;
+            --text-sec: #8899a6;
         }
 
         body {
-            background-color: var(--dark-bg);
-            color: var(--text-color);
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
             margin: 0; padding: 16px;
             -webkit-tap-highlight-color: transparent;
-            background-image: radial-gradient(circle at top, #0a1f30 0%, #050505 60%);
+            background-image: radial-gradient(circle at 50% 0%, #001f3f 0%, #050505 70%);
+            min-height: 100vh;
         }
         
+        /* ЗАГОЛОВОК */
+        h2 {
+            text-align: center;
+            margin-bottom: 25px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #fff;
+            text-shadow: 0 0 10px var(--neon-color); /* Неоновое свечение */
+        }
+
         /* КАРТОЧКА ТОВАРА */
         .product-card {
             background: var(--card-bg);
             border: 1px solid #333;
             border-radius: 16px;
             padding: 16px;
-            margin-bottom: 15px;
-            box-shadow: 0 4px 20px rgba(0, 229, 255, 0.05);
-            transition: 0.2s;
+            margin-bottom: 16px;
+            box-shadow: 0 0 15px rgba(0, 229, 255, 0.1); 
+            transition: transform 0.2s;
         }
         
-        .product-header { display: flex; justify-content: space-between; margin-bottom: 12px; }
-        .product-title { font-size: 19px; font-weight: 800; color: #fff; letter-spacing: 0.5px; }
-        .product-info { color: var(--neon-blue); font-size: 14px; text-shadow: 0 0 5px rgba(0, 229, 255, 0.4); }
+        .product-header { display: flex; justify-content: space-between; margin-bottom: 12px; align-items: center; }
+        .product-title { font-size: 19px; font-weight: 800; color: #fff; }
+        .product-info { color: var(--neon-color); font-size: 13px; font-weight: 600; letter-spacing: 0.5px; }
         
-        /* ОПЦИИ И ЦЕНЫ */
+        /* ОПЦИИ */
         .price-option {
             display: flex; justify-content: space-between; align-items: center;
-            background: #1a1a1a; padding: 12px; border-radius: 12px;
+            background: #181818; padding: 12px; border-radius: 12px;
             margin-bottom: 8px; cursor: pointer;
             border: 1px solid #333;
-            transition: all 0.3s ease;
+            transition: 0.3s;
         }
         
         .price-option.selected {
-            border-color: var(--neon-blue);
-            background: rgba(0, 229, 255, 0.05);
-            box-shadow: 0 0 10px rgba(0, 229, 255, 0.1);
+            border-color: var(--neon-color);
+            background: rgba(0, 229, 255, 0.08);
+            box-shadow: 0 0 12px rgba(0, 229, 255, 0.2);
         }
         
         .price-text { font-weight: 700; color: #fff; }
-        .option-label { font-size: 13px; color: var(--gray-text); }
+        .option-label { font-size: 13px; color: var(--text-sec); }
 
-        /* КНОПКИ +/- */
+        /* СЧЕТЧИК */
         .counter-controls {
-            display: flex; align-items: center; justify-content: space-between;
-            background: transparent; border: 1px solid var(--neon-blue);
-            border-radius: 8px; padding: 4px 8px; min-width: 80px;
+            display: flex; align-items: center; gap: 10px;
+            background: rgba(0, 229, 255, 0.1);
+            border: 1px solid var(--neon-color);
+            border-radius: 8px; padding: 4px 8px;
         }
         .ctrl-btn { 
             background: transparent; border: none; 
-            color: var(--neon-blue); font-size: 20px; font-weight: bold;
-            width: 30px; cursor: pointer;
+            color: var(--neon-color); font-size: 20px; font-weight: bold;
+            width: 30px; cursor: pointer; padding: 0;
         }
-        .count-val { font-weight: bold; color: #fff; }
-        .hidden { display: none; }
+        .count-val { font-weight: bold; color: #fff; min-width: 20px; text-align: center;}
+        .hidden { display: none !important; }
 
         /* ПОЛЯ ВВОДА */
         #order-screen { display: none; }
         input, select {
-            width: 100%; background: #1a1a1a; 
+            width: 100%; box-sizing: border-box;
+            background: #181818; 
             border: 1px solid #333; color: white; 
             padding: 14px; border-radius: 12px;
-            margin-bottom: 15px; font-size: 16px; outline: none; box-sizing: border-box;
+            margin-bottom: 15px; font-size: 16px; outline: none;
             transition: 0.3s;
         }
         input:focus, select:focus { 
-            border-color: var(--neon-blue); 
-            box-shadow: 0 0 10px rgba(0, 229, 255, 0.2);
+            border-color: var(--neon-color); 
+            box-shadow: 0 0 12px rgba(0, 229, 255, 0.3);
         }
         
+        label { color: var(--text-sec); font-size: 13px; margin-bottom: 6px; display: block; margin-left: 4px;}
+        .back-link { 
+            color: var(--neon-color); text-decoration: none; 
+            font-size: 16px; display: inline-flex; align-items: center; 
+            margin-bottom: 20px; font-weight: bold; 
+        }
+
         /* РАДИО КНОПКИ */
         .radio-group { display: flex; gap: 10px; margin-bottom: 15px; }
         .radio-label {
-            flex: 1; text-align: center; background: #1a1a1a;
+            flex: 1; text-align: center; background: #181818;
             padding: 12px; border-radius: 12px; border: 1px solid #333; 
-            cursor: pointer; transition: 0.3s; color: var(--gray-text);
+            cursor: pointer; transition: 0.3s; color: var(--text-sec);
         }
         input[type="radio"] { display: none; }
         
         input[type="radio"]:checked + .radio-label {
-            background: var(--neon-blue); 
-            border-color: var(--neon-blue); 
+            background: var(--neon-color); 
+            border-color: var(--neon-color); 
             color: #000; font-weight: 800;
-            box-shadow: 0 0 15px rgba(0, 229, 255, 0.4);
+            box-shadow: 0 0 15px rgba(0, 229, 255, 0.5);
         }
 
-        /* ГЛАВНАЯ КНОПКА */
+        /* КНОПКА ЗАКАЗА */
         .main-btn {
             width: calc(100% - 32px); padding: 18px;
-            background: var(--neon-blue); 
-            color: #000; 
+            background: var(--neon-color); 
+            color: #000;
             border: none; border-radius: 14px;
             font-size: 18px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px;
             position: fixed; bottom: 20px; left: 16px;
-            box-shadow: 0 0 20px rgba(0, 229, 255, 0.4);
+            box-shadow: 0 0 25px rgba(0, 229, 255, 0.4);
             z-index: 100;
             transition: transform 0.1s;
         }
-        .main-btn:active { transform: scale(0.98); }
-        
-        .back-link { 
-            color: var(--neon-blue); text-decoration: none; font-size: 16px; 
-            display: inline-flex; align-items: center; margin-bottom: 20px; font-weight: bold;
-        }
-        label { color: var(--gray-text); font-size: 13px; margin-bottom: 6px; display: block; margin-left: 4px;}
-        h2 { color: #fff; text-shadow: 0 0 10px rgba(0,0,0,0.5); }
+        .main-btn:active { transform: scale(0.96); }
     </style>
 </head>
 <body>
 
 <div id="catalog-screen">
-    <h2 style="text-align: center; margin-bottom: 25px;">⚡️ NITROUS SHOP ⚡️</h2>
+    <h2>Element_gas_kg</h2>
     <div id="products-container"></div>
     <div style="height: 100px;"></div>
 </div>
@@ -143,10 +157,10 @@
     <label>Адрес (Улица, дом):</label>
     <input type="text" id="address" placeholder="Например: ул. Токтогула, 125">
 
-    <label>Квартира / Этаж / Домофон:</label>
+    <label>Квартира / Этаж:</label>
     <input type="text" id="kv" placeholder="Кв 15, этаж 3">
 
-    <label>Контактный телефон:</label>
+    <label>Телефон:</label>
     <input type="tel" id="phone" placeholder="0555 123 456">
 
     <label>Срочность:</label>
@@ -161,7 +175,7 @@
         </label>
     </div>
 
-    <label>Способ оплаты:</label>
+    <label>Оплата:</label>
     <div class="radio-group">
         <label style="flex:1">
             <input type="radio" name="payment" value="Наличные" checked>
@@ -220,7 +234,7 @@
             </div>
             <div id="ctrl-${id}-${type}" class="counter-controls hidden">
                 <button class="ctrl-btn" onclick="event.stopPropagation(); minus(${id}, '${type}')">-</button>
-                <span style="margin:0 10px;" class="count-val" id="val-${id}-${type}">0</span>
+                <span class="count-val" id="val-${id}-${type}">0</span>
                 <button class="ctrl-btn" onclick="event.stopPropagation(); plus(${id}, '${type}')">+</button>
             </div>
         </div>`;
@@ -274,8 +288,8 @@
         if (totalCount > 0) {
             btn.classList.remove('hidden');
             btn.innerText = currentScreen === 'catalog' 
-                ? `ОФОРМИТЬ: ${totalSum} с` 
-                : `ПОДТВЕРДИТЬ: ${totalSum} с`;
+                ? `ОФОРМИТЬ (${totalSum} с)` 
+                : `ПОДТВЕРДИТЬ (${totalSum} с)`;
         } else {
             btn.classList.add('hidden');
         }
@@ -307,7 +321,7 @@
         const kv = document.getElementById('kv').value;
         
         if (!address || !phone) {
-            tg.showAlert("⚠️ Пожалуйста, введите адрес и телефон!");
+            tg.showAlert("⚠️ Введите адрес и телефон!");
             return;
         }
 
