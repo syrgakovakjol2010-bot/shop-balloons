@@ -8,9 +8,9 @@
     <style>
         :root {
             /* === НАСТРОЙКИ ЦВЕТА (СИНИЙ НЕОН) === */
-            --neon-color: #00e5ff;  /* Ярко-голубой неон */
-            --bg-color: #050505;    /* Черный фон */
-            --card-bg: #101010;     /* Фон карточек */
+            --neon-color: #00e5ff;
+            --bg-color: #050505;
+            --card-bg: #101010;
             --text-main: #ffffff;
             --text-sec: #8899a6;
         }
@@ -25,23 +25,15 @@
             min-height: 100vh;
         }
         
-        /* ЗАГОЛОВОК */
         h2 {
-            text-align: center;
-            margin-bottom: 25px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            color: #fff;
-            text-shadow: 0 0 10px var(--neon-color); /* Неоновое свечение */
+            text-align: center; margin-bottom: 25px; text-transform: uppercase;
+            letter-spacing: 2px; color: #fff;
+            text-shadow: 0 0 10px var(--neon-color);
         }
 
-        /* КАРТОЧКА ТОВАРА */
         .product-card {
-            background: var(--card-bg);
-            border: 1px solid #333;
-            border-radius: 16px;
-            padding: 16px;
-            margin-bottom: 16px;
+            background: var(--card-bg); border: 1px solid #333;
+            border-radius: 16px; padding: 16px; margin-bottom: 16px;
             box-shadow: 0 0 15px rgba(0, 229, 255, 0.1); 
             transition: transform 0.2s;
         }
@@ -50,12 +42,10 @@
         .product-title { font-size: 19px; font-weight: 800; color: #fff; }
         .product-info { color: var(--neon-color); font-size: 13px; font-weight: 600; letter-spacing: 0.5px; }
         
-        /* ОПЦИИ */
         .price-option {
             display: flex; justify-content: space-between; align-items: center;
             background: #181818; padding: 12px; border-radius: 12px;
-            margin-bottom: 8px; cursor: pointer;
-            border: 1px solid #333;
+            margin-bottom: 8px; cursor: pointer; border: 1px solid #333;
             transition: 0.3s;
         }
         
@@ -68,11 +58,9 @@
         .price-text { font-weight: 700; color: #fff; }
         .option-label { font-size: 13px; color: var(--text-sec); }
 
-        /* СЧЕТЧИК */
         .counter-controls {
             display: flex; align-items: center; gap: 10px;
-            background: rgba(0, 229, 255, 0.1);
-            border: 1px solid var(--neon-color);
+            background: rgba(0, 229, 255, 0.1); border: 1px solid var(--neon-color);
             border-radius: 8px; padding: 4px 8px;
         }
         .ctrl-btn { 
@@ -83,15 +71,12 @@
         .count-val { font-weight: bold; color: #fff; min-width: 20px; text-align: center;}
         .hidden { display: none !important; }
 
-        /* ПОЛЯ ВВОДА */
         #order-screen { display: none; }
         input, select {
-            width: 100%; box-sizing: border-box;
-            background: #181818; 
+            width: 100%; box-sizing: border-box; background: #181818; 
             border: 1px solid #333; color: white; 
             padding: 14px; border-radius: 12px;
-            margin-bottom: 15px; font-size: 16px; outline: none;
-            transition: 0.3s;
+            margin-bottom: 15px; font-size: 16px; outline: none; transition: 0.3s;
         }
         input:focus, select:focus { 
             border-color: var(--neon-color); 
@@ -105,7 +90,6 @@
             margin-bottom: 20px; font-weight: bold; 
         }
 
-        /* РАДИО КНОПКИ */
         .radio-group { display: flex; gap: 10px; margin-bottom: 15px; }
         .radio-label {
             flex: 1; text-align: center; background: #181818;
@@ -115,23 +99,19 @@
         input[type="radio"] { display: none; }
         
         input[type="radio"]:checked + .radio-label {
-            background: var(--neon-color); 
-            border-color: var(--neon-color); 
+            background: var(--neon-color); border-color: var(--neon-color); 
             color: #000; font-weight: 800;
             box-shadow: 0 0 15px rgba(0, 229, 255, 0.5);
         }
 
-        /* КНОПКА ЗАКАЗА */
         .main-btn {
             width: calc(100% - 32px); padding: 18px;
-            background: var(--neon-color); 
-            color: #000;
+            background: var(--neon-color); color: #000;
             border: none; border-radius: 14px;
             font-size: 18px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px;
             position: fixed; bottom: 20px; left: 16px;
             box-shadow: 0 0 25px rgba(0, 229, 255, 0.4);
-            z-index: 100;
-            transition: transform 0.1s;
+            z-index: 100; transition: transform 0.1s;
         }
         .main-btn:active { transform: scale(0.96); }
     </style>
@@ -198,13 +178,18 @@
     tg.setHeaderColor('#050505'); 
     tg.setBackgroundColor('#050505');
 
+    // ФУНКЦИЯ ДЛЯ ПРОБЕЛОВ В ЦЕНЕ (18 500)
+    function formatPrice(price) {
+        return price.toLocaleString('ru-RU');
+    }
+
     const products = [
-        { id: 1, name: "10 л", info: "200-220 шаров", priceFull: 18,500, priceSwap: 15,500 },
-        { id: 2, name: "5 л", info: "120-130 шаров", priceFull: 15,000, priceSwap: 12,000 },
-        { id: 3, name: "4 л", info: "90-100 шаров", priceFull: 13,000, priceSwap: 10,000 },
-        { id: 4, name: "3.5 л", info: "20-25 шаров", priceFull: 7,300, priceSwap: 4,300 },
-        { id: 5, name: "2 л", info: "40-45 шаров", priceFull: 9,000, priceSwap: 6,000 },
-        { id: 6, name: "1 л", info: "20-25 шаров", priceFull: 7,500, priceSwap: 4,500 }
+        { id: 1, name: "10 л", info: "200-220 шаров", priceFull: 18500, priceSwap: 15500 },
+        { id: 2, name: "5 л", info: "120-130 шаров", priceFull: 15000, priceSwap: 12000 },
+        { id: 3, name: "4 л", info: "90-100 шаров", priceFull: 13000, priceSwap: 10000 },
+        { id: 4, name: "3.5 л", info: "20-25 шаров", priceFull: 7300, priceSwap: 4300 },
+        { id: 5, name: "2 л", info: "40-45 шаров", priceFull: 9000, priceSwap: 6000 },
+        { id: 6, name: "1 л", info: "20-25 шаров", priceFull: 7500, priceSwap: 4500 }
     ];
 
     let cart = {};
@@ -226,128 +211,7 @@
     });
 
     function renderOption(id, type, label, price) {
+        // Здесь используем formatPrice для красивого вывода
         return `
-        <div class="price-option" id="opt-${id}-${type}" onclick="addToCart(${id}, '${type}', ${price})">
-            <div>
-                <span class="option-label" style="display:block;">${label}</span>
-                <span class="price-text">${price} с</span>
-            </div>
-            <div id="ctrl-${id}-${type}" class="counter-controls hidden">
-                <button class="ctrl-btn" onclick="event.stopPropagation(); minus(${id}, '${type}')">-</button>
-                <span class="count-val" id="val-${id}-${type}">0</span>
-                <button class="ctrl-btn" onclick="event.stopPropagation(); plus(${id}, '${type}')">+</button>
-            </div>
-        </div>`;
-    }
 
-    function addToCart(id, type, price) {
-        const key = `${id}-${type}`;
-        if (!cart[key]) cart[key] = { count: 0, price: price, id: id, type: type };
-        plus(id, type);
-    }
-
-    function plus(id, type) {
-        const key = `${id}-${type}`;
-        if (cart[key]) cart[key].count++;
-        updateUI();
-    }
-
-    function minus(id, type) {
-        const key = `${id}-${type}`;
-        if (cart[key]) {
-            cart[key].count--;
-            if (cart[key].count <= 0) delete cart[key];
-        }
-        updateUI();
-    }
-
-    function updateUI() {
-        let totalSum = 0;
-        let totalCount = 0;
-
-        document.querySelectorAll('.price-option').forEach(el => el.classList.remove('selected'));
-        document.querySelectorAll('.counter-controls').forEach(el => el.classList.add('hidden'));
-
-        for (let key in cart) {
-            const item = cart[key];
-            totalSum += item.price * item.count;
-            totalCount += item.count;
-            
-            const optDiv = document.getElementById(`opt-${item.id}-${item.type}`);
-            if (optDiv) optDiv.classList.add('selected');
-
-            const ctrl = document.getElementById(`ctrl-${key}`);
-            const val = document.getElementById(`val-${key}`);
-            if (ctrl) {
-                ctrl.classList.remove('hidden');
-                val.innerText = item.count;
-            }
-        }
-
-        const btn = document.getElementById('main-button');
-        if (totalCount > 0) {
-            btn.classList.remove('hidden');
-            btn.innerText = currentScreen === 'catalog' 
-                ? `ОФОРМИТЬ (${totalSum} с)` 
-                : `ПОДТВЕРДИТЬ (${totalSum} с)`;
-        } else {
-            btn.classList.add('hidden');
-        }
-    }
-
-    function handleMainButton() {
-        if (currentScreen === 'catalog') showOrderForm();
-        else sendDataToBot();
-    }
-
-    function showOrderForm() {
-        document.getElementById('catalog-screen').style.display = 'none';
-        document.getElementById('order-screen').style.display = 'block';
-        currentScreen = 'order';
-        window.scrollTo(0,0);
-        updateUI();
-    }
-
-    function showCatalog() {
-        document.getElementById('catalog-screen').style.display = 'block';
-        document.getElementById('order-screen').style.display = 'none';
-        currentScreen = 'catalog';
-        updateUI();
-    }
-
-    function sendDataToBot() {
-        const address = document.getElementById('address').value;
-        const phone = document.getElementById('phone').value;
-        const kv = document.getElementById('kv').value;
         
-        if (!address || !phone) {
-            tg.showAlert("⚠️ Введите адрес и телефон!");
-            return;
-        }
-
-        let items = [];
-        let total = 0;
-        for (let key in cart) {
-            const i = cart[key];
-            const p = products.find(x => x.id == i.id);
-            const tName = i.type === 'full' ? 'С баллоном' : 'С заменой баллона';
-            items.push({ name: `${p.name} (${tName})`, count: i.count });
-            total += i.price * i.count;
-        }
-
-        const data = {
-            city: document.getElementById('city').value,
-            address: address,
-            kv: kv,
-            phone: phone,
-            urgency: document.querySelector('input[name="urgency"]:checked').value,
-            payment: document.querySelector('input[name="payment"]:checked').value,
-            items: items,
-            total: total
-        };
-
-        tg.sendData(JSON.stringify(data));
-    }
-</script>
-</body>
-</html>
