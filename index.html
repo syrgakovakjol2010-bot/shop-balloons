@@ -211,7 +211,130 @@
     });
 
     function renderOption(id, type, label, price) {
-        // Здесь используем formatPrice для красивого вывода
+        // Форматируем цену с пробелами
         return `
+        <div class="price-option" id="opt-${id}-${type}" onclick="addToCart(${id}, '${type}', ${price})">
+            <div>
+                <span class="option-label" style="display:block;">${label}</span>
+                <span class="price-text">${formatPrice(price)} с</span>
+            </div>
+            <div id="ctrl-${id}-${type}" class="counter-controls hidden">
+                <button class="ctrl-btn" onclick="event.stopPropagation(); minus(${id}, '${type}')">-</button>
+                <span class="count-val" id="val-${id}-${type}">0</span>
+                <button class="ctrl-btn" onclick="event.stopPropagation(); plus(${id}, '${type}')">+</button>
+            </div>
+        </div>`;
+    }
 
+    function addToCart(id, type, price) {
+        const key = `${id}-${type}`;
+        if (!cart[key]) cart[key] = { count: 0, price: price, id: id, type: type };
+        plus(id, type);
+    }
+
+    function plus(id, type) {
+        const key = `${id}-${type}`;
+        if (cart[key]) cart[key].count++;
+        updateUI();
+    }
+
+    function minus(id, type) {
+        const key = `${id}-${type}`;
+        if (cart[key]) {
+            cart[key].count--;
+            if (cart[key].count <= 0) delete cart[key];
+        }
+        updateUI();
+    }
+
+    function updateUI() {
+        let totalSum = 0;
+        let totalCount = 0;
+
+        document.querySelectorAll('.price-option').forEach(el => el.classList.remove('selected'));
+        document.querySelectorAll('.counter-controls').forEach(el => el.classList.add('hidden'));
+
+        for (let key in cart) {
+            const item = cart[key];
+            totalSum += item.price * item.count;
+            totalCount += item.count;
+            
+            const optDiv = document.getElementById(`opt-${item.id}-${item.type}`);
+            if (optDiv) optDiv.classList.add('selected');
+
+            const ctrl = document.getElementById(`ctrl-${key}`);
+            const val = document.getElementById(`val-${key}`);
+            if (ctrl) {
+                ctrl.classList.remove('hidden');
+                val.innerText = item.count;
+            }
+        }
+
+        const btn = document.getElementById('main-button');
+        if (totalCount > 0) {
+            btn.classList.remove('hidden');
+            // Здесь тоже форматируем цену
+            btn.innerText = currentScreen === 'catalog' 
+                ? `ОФОРМИТЬ (${formatPrice(totalSum)} с)` 
+                : `ПОДТВЕРДИТЬ (${formatPrice(totalSum)} с)`;
+        } else {
+            btn.classList.add('hidden');
+        }
+    }
+
+    function handleMainButton() {
+        if (currentScreen === 'catalog') showOrderForm();
+        else sendDataToBot();
+    }
+
+    function showOrderForm() {
+        document.getElementById('catalog-screen').style.display = 'none';
+        document.getElementById('order-screen').style.display = 'block';
+        currentScreen = 'order';
+        window.scrollTo(0,0);
+        updateUI();
+    }
+
+    function showCatalog() {
+        document.getElementById('catalog-screen').style.display = 'block';
+        document.getElementById('order-screen').style.display = 'none';
+        currentScreen = 'catalog';
+        updateUI();
+    }
+
+    function sendDataToBot() {
+        const address = document.getElementById('address').value;
+        const phone = document.getElementById('phone').value;
+        const kv = document.getElementById('kv').value;
         
+        if (!address || !phone) {
+            tg.showAlert("⚠️ Введите адрес и телефон!");
+            return;
+        }
+
+        let items = [];
+        let total = 0;
+        for (let key in cart) {
+            const i = cart[key];
+            const p = products.find(x => x.id == i.id);
+            const tName = i.type === 'full' ? 'С баллоном' : 'С заменой баллона';
+            items.push({ name: `${p.name} (${tName})`, count: i.count });
+            total += i.price * i.count;
+        }
+
+        const data = {
+            city: document.getElementById('city').value,
+            address: address,
+            kv: kv,
+            phone: phone,
+            urgency: document.querySelector('input[name="urgency"]:checked').value,
+            payment: document.querySelector('input[name="payment"]:checked').value,
+            items: items,
+            total: total
+        };
+
+        tg.sendData(JSON.stringify(data));
+    }
+</script>
+</body>
+</html>
