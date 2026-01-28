@@ -7,111 +7,145 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
-            /* === НАСТРОЙКИ ЦВЕТА (СИНИЙ НЕОН) === */
-            --neon-color: #00e5ff;
-            --bg-color: #050505;
-            --card-bg: #101010;
-            --text-main: #ffffff;
-            --text-sec: #8899a6;
+            /* === НАСТРОЙКИ ЦВЕТА === */
+            --neon-pink: #ff33ff;   /* Яркий розовый неон для акцентов */
+            --text-main: #ffffff;   /* Белый текст */
+            --text-sec: #ffccff;    /* Светло-розовый дополнительный текст */
+            --input-bg: #2a0a35;    /* Фон для полей ввода (на фиолетовом фоне) */
         }
 
         body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
             font-family: -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
             margin: 0; padding: 16px;
             -webkit-tap-highlight-color: transparent;
-            background-image: radial-gradient(circle at 50% 0%, #001f3f 0%, #050505 70%);
             min-height: 100vh;
+            color: var(--text-main);
+            
+            /* ФОН - ГЛУБОКИЙ ФИОЛЕТОВЫЙ (АНИМИРОВАННЫЙ) */
+            background: linear-gradient(-45deg, #1a0033, #330066, #4a0080, #220044);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
         
         h2 {
             text-align: center; margin-bottom: 25px; text-transform: uppercase;
             letter-spacing: 2px; color: #fff;
-            text-shadow: 0 0 10px var(--neon-color);
+            text-shadow: 0 0 15px var(--neon-pink);
         }
 
+        /* === РОЗОВЫЕ КВАДРАТИКИ (КАРТОЧКИ) === */
         .product-card {
-            background: var(--card-bg); border: 1px solid #333;
-            border-radius: 16px; padding: 16px; margin-bottom: 16px;
-            box-shadow: 0 0 15px rgba(0, 229, 255, 0.1); 
+            /* Розовый градиент для самой карточки */
+            background: linear-gradient(135deg, #d100d1, #a300a3);
+            border: 2px solid #ff66ff; /* Светло-розовая рамка */
+            border-radius: 20px;
+            padding: 16px;
+            margin-bottom: 18px;
+            /* Мощное розовое свечение */
+            box-shadow: 0 5px 25px rgba(255, 0, 255, 0.4); 
             transition: transform 0.2s;
         }
         
         .product-header { display: flex; justify-content: space-between; margin-bottom: 12px; align-items: center; }
-        .product-title { font-size: 19px; font-weight: 800; color: #fff; }
-        .product-info { color: var(--neon-color); font-size: 13px; font-weight: 600; letter-spacing: 0.5px; }
+        /* Текст заголовка внутри розовой карты */
+        .product-title { font-size: 20px; font-weight: 900; color: #fff; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
         
+        /* Информация в углу */
+        .product-info { 
+            color: #ffccff; /* Светло-розовый */
+            font-size: 13px; font-weight: 700; letter-spacing: 0.5px; 
+            text-align: right; max-width: 50%;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        }
+        
+        /* Кнопки выбора внутри карточки (делаем темнее для контраста с розовым фоном) */
         .price-option {
             display: flex; justify-content: space-between; align-items: center;
-            background: #181818; padding: 12px; border-radius: 12px;
-            margin-bottom: 8px; cursor: pointer; border: 1px solid #333;
+            background: rgba(0, 0, 0, 0.3); /* Полупрозрачный черный */
+            padding: 12px; border-radius: 12px;
+            margin-bottom: 8px; cursor: pointer; 
+            border: 1px solid rgba(255, 255, 255, 0.2);
             transition: 0.3s;
         }
         
         .price-option.selected {
-            border-color: var(--neon-color);
-            background: rgba(0, 229, 255, 0.08);
-            box-shadow: 0 0 12px rgba(0, 229, 255, 0.2);
+            border-color: #fff;
+            background: rgba(255, 255, 255, 0.25); /* Светлее при выборе */
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.4);
         }
         
         .price-text { font-weight: 700; color: #fff; }
-        .option-label { font-size: 13px; color: var(--text-sec); }
+        .option-label { font-size: 13px; color: #ffccff; }
 
+        /* Счетчики */
         .counter-controls {
             display: flex; align-items: center; gap: 10px;
-            background: rgba(0, 229, 255, 0.1); border: 1px solid var(--neon-color);
-            border-radius: 8px; padding: 4px 8px;
+            background: rgba(0, 0, 0, 0.2); border: 2px solid #fff;
+            border-radius: 10px; padding: 4px 8px;
         }
         .ctrl-btn { 
             background: transparent; border: none; 
-            color: var(--neon-color); font-size: 20px; font-weight: bold;
+            color: #fff; font-size: 22px; font-weight: bold;
             width: 30px; cursor: pointer; padding: 0;
         }
         .count-val { font-weight: bold; color: #fff; min-width: 20px; text-align: center;}
         .hidden { display: none !important; }
 
+        /* === ЭКРАН ОФОРМЛЕНИЯ (НА ФИОЛЕТОВОМ ФОНЕ) === */
         #order-screen { display: none; }
+        
+        /* Поля ввода на фиолетовом фоне */
         input, select {
-            width: 100%; box-sizing: border-box; background: #181818; 
-            border: 1px solid #333; color: white; 
+            width: 100%; box-sizing: border-box; 
+            background: var(--input-bg); /* Темно-фиолетовый фон полей */
+            border: 2px solid #5a007a; 
+            color: white; 
             padding: 14px; border-radius: 12px;
             margin-bottom: 15px; font-size: 16px; outline: none; transition: 0.3s;
         }
         input:focus, select:focus { 
-            border-color: var(--neon-color); 
-            box-shadow: 0 0 12px rgba(0, 229, 255, 0.3);
+            border-color: var(--neon-pink); 
+            box-shadow: 0 0 15px rgba(255, 51, 255, 0.5);
         }
         
         label { color: var(--text-sec); font-size: 13px; margin-bottom: 6px; display: block; margin-left: 4px;}
         .back-link { 
-            color: var(--neon-color); text-decoration: none; 
+            color: var(--neon-pink); text-decoration: none; 
             font-size: 16px; display: inline-flex; align-items: center; 
-            margin-bottom: 20px; font-weight: bold; 
+            margin-bottom: 20px; font-weight: bold; text-shadow: 0 0 10px var(--neon-pink);
         }
 
         .radio-group { display: flex; gap: 10px; margin-bottom: 15px; }
         .radio-label {
-            flex: 1; text-align: center; background: #181818;
-            padding: 12px; border-radius: 12px; border: 1px solid #333; 
+            flex: 1; text-align: center; background: var(--input-bg);
+            padding: 12px; border-radius: 12px; border: 2px solid #5a007a; 
             cursor: pointer; transition: 0.3s; color: var(--text-sec);
         }
         input[type="radio"] { display: none; }
         
         input[type="radio"]:checked + .radio-label {
-            background: var(--neon-color); border-color: var(--neon-color); 
-            color: #000; font-weight: 800;
-            box-shadow: 0 0 15px rgba(0, 229, 255, 0.5);
+            background: var(--neon-pink); border-color: var(--neon-pink); 
+            color: #fff; font-weight: 900;
+            box-shadow: 0 0 25px rgba(255, 51, 255, 0.7);
         }
 
+        /* ГЛАВНАЯ КНОПКА */
         .main-btn {
             width: calc(100% - 32px); padding: 18px;
-            background: var(--neon-color); color: #000;
-            border: none; border-radius: 14px;
-            font-size: 18px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px;
+            background: linear-gradient(to right, #ff00cc, #ff33ff); /* Розовый градиент */
+            color: #fff;
+            border: none; border-radius: 16px;
+            font-size: 20px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px;
             position: fixed; bottom: 20px; left: 16px;
-            box-shadow: 0 0 25px rgba(0, 229, 255, 0.4);
+            box-shadow: 0 5px 30px rgba(255, 0, 204, 0.6);
             z-index: 100; transition: transform 0.1s;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
         }
         .main-btn:active { transform: scale(0.96); }
     </style>
@@ -175,21 +209,21 @@
 <script>
     const tg = window.Telegram.WebApp;
     tg.expand();
-    tg.setHeaderColor('#050505'); 
-    tg.setBackgroundColor('#050505');
+    // Цвет шапки под новый фиолетовый фон
+    tg.setHeaderColor('#1a0033'); 
+    tg.setBackgroundColor('#1a0033');
 
-    // ФУНКЦИЯ ДЛЯ ПРОБЕЛОВ В ЦЕНЕ (18 500)
     function formatPrice(price) {
         return price.toLocaleString('ru-RU');
     }
 
     const products = [
-        { id: 1, name: "10 л", info: "200-220 шаров", priceFull: 18500, priceSwap: 15500 },
-        { id: 2, name: "5 л", info: "120-130 шаров", priceFull: 15000, priceSwap: 12000 },
-        { id: 3, name: "4 л", info: "90-100 шаров", priceFull: 13000, priceSwap: 10000 },
-        { id: 4, name: "3.5 л", info: "20-25 шаров", priceFull: 7300, priceSwap: 4300 },
-        { id: 5, name: "2 л", info: "40-45 шаров", priceFull: 9000, priceSwap: 6000 },
-        { id: 6, name: "1 л", info: "20-25 шаров", priceFull: 7500, priceSwap: 4500 }
+        { id: 1, name: "10 л", info: "200-220 маленьких шаров", priceFull: 18500, priceSwap: 15500 },
+        { id: 2, name: "5 л", info: "120-130 маленьких шаров", priceFull: 15000, priceSwap: 12000 },
+        { id: 3, name: "4 л", info: "90-100 маленьких шаров", priceFull: 13000, priceSwap: 10000 },
+        { id: 4, name: "3.5 л", info: "20-25 маленьких шаров", priceFull: 7300, priceSwap: 4300 },
+        { id: 5, name: "2 л", info: "40-45 маленьких шаров", priceFull: 9000, priceSwap: 6000 },
+        { id: 6, name: "1 л", info: "20-25 маленьких шаров", priceFull: 7500, priceSwap: 4500 }
     ];
 
     let cart = {};
@@ -211,7 +245,6 @@
     });
 
     function renderOption(id, type, label, price) {
-        // Форматируем цену с пробелами
         return `
         <div class="price-option" id="opt-${id}-${type}" onclick="addToCart(${id}, '${type}', ${price})">
             <div>
@@ -273,7 +306,6 @@
         const btn = document.getElementById('main-button');
         if (totalCount > 0) {
             btn.classList.remove('hidden');
-            // Здесь тоже форматируем цену
             btn.innerText = currentScreen === 'catalog' 
                 ? `ОФОРМИТЬ (${formatPrice(totalSum)} с)` 
                 : `ПОДТВЕРДИТЬ (${formatPrice(totalSum)} с)`;
